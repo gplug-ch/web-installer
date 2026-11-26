@@ -70,6 +70,7 @@
   .step.collapsed .step-head::after { content:"▸"; }
   .step-head .sum { margin-left:auto; color:var(--muted); font-size:0.9rem; font-weight:normal;
                     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .step:not(.collapsed) .step-head .sum { visibility:hidden; }
   .step.done .num { background:var(--accent); }
   .btn.secondary { background:none; color:var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
 </style>
@@ -439,10 +440,9 @@ document.querySelectorAll(".step").forEach((sec) => {
 function goTo(id, focus = false) {
   openStep = id;
   render();
-  if (focus && id) {
-    $(id).querySelector(".step-head").focus({ preventScroll: true });
-    $(id).scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
+  if (!id) return;
+  if (focus) $(id).querySelector(".step-head").focus({ preventScroll: true });
+  $(id).scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 // German texts live in the HTML; remember them so switching back restores them.
@@ -467,11 +467,12 @@ document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("clic
 // ---- state --------------------------------------------------------------------------------
 const state = { name: "", status: null, kind: null, image: null };  // kind: "app" | "full"
 const $ = (id) => document.getElementById(id);
+const method = () => document.querySelector('input[name="method"]:checked').value;
 
 // ---- step 2 (USB): read and check the file locally ----------------------------------------------
 async function readImage(file) {
   const head = new Uint8Array(await file.slice(0, 2).arrayBuffer());
-  const stream = head[0] === 0x1f && head[1] === 0x8b   // .bin.gz: Tasmota takes it over Wi-Fi, USB needs it unpacked
+  const stream = head[0] === 0x1f && head[1] === 0x8b   // .bin.gz: unpacked for the check and for USB
     ? file.stream().pipeThrough(new DecompressionStream("gzip"))
     : file.stream();
   return new Uint8Array(await new Response(stream).arrayBuffer());
@@ -492,7 +493,8 @@ async function chooseFile(file) {
     }
   } catch { state.status = "errRead"; }
   updateManifest();
-  if (state.image) goTo("panel-usb", true); else render();
+  // Move on only if the user is still on the USB path (the check may finish after a switch to Wi-Fi).
+  if (state.image && method() === "usb") goTo("panel-usb"); else render();
 }
 
 $("file").addEventListener("change", (e) => chooseFile(e.target.files[0]));
@@ -528,11 +530,12 @@ function updateManifest() {
 }
 
 // ---- step 2 (Wi-Fi): the gPlug's own update page ---------------------------------------------
-// The user picks the file there, not here, so it is chosen only once (issue #8). This page cannot send
-// it itself: Tasmota's HttpCheckPriviledgedAccess() rejects /u2 and /u4 unless the Referer is the
-// device's own http address (a missing Referer is rejected too; only SetOption128 1 lifts this), an
-// https page sends no Referer to http, fetch() to http is mixed content, and with the safeboot layout
-// the /up page's own script first restarts the gPlug into safeboot (/u4?u4=fct) before uploading.
+// The user picks the file there, not here, so it is chosen only once (issue #8). This page does not
+// send it itself: from https, fetch() to the http gPlug is mixed content. Chrome's Local Network Access
+// (targetAddressSpace: "local", no-cors) does reach it, but the reply is opaque, so the page could not
+// see when the gPlug is back in safeboot (/u4?u4=fct, which the /up page's own script waits for) nor
+// whether the upload worked; it also fails with a web password or SetOption128 0 (Referer check), and
+// Firefox/Safari have no such opening. The /up page works in every browser and shows the result.
 function gplugHost() {
   return $("addr").value.trim().replace(/^https?:\/\//i, "").replace(/[/?#].*$/, "");
 }
@@ -545,12 +548,20 @@ $("open-gplug").addEventListener("click", () => {
   window.open(`http://${host}/up`, "_blank", "noopener");
 });
 
-// "click" (not "change") so choosing the already selected method also moves on.
-document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener("click", () => {
+// A click (also on the already selected method), Enter or Space moves on; arrow keys only select, so
+// keyboard users can look at both options without step 1 folding away.
+// Focus follows to the next step only for keyboard users; a pointer user keeps their place.
+function chooseMethod(r, byKey) {
+  r.checked = true;
   methodChosen = true;
-  goTo(r.value === "wifi" ? "panel-wifi" : "panel-file", true);
-}));
-$("usb-next").addEventListener("click", () => goTo("setup", true));
+  goTo(r.value === "wifi" ? "panel-wifi" : "panel-file", byKey);
+}
+document.querySelectorAll('input[name="method"]').forEach((r) => {
+  r.addEventListener("change", render);
+  r.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chooseMethod(r, true); } });
+  r.closest("label").addEventListener("click", (e) => { if (e.detail > 0) chooseMethod(r, false); });  // pointer, not arrow keys
+});
+$("usb-next").addEventListener("click", (e) => goTo("setup", e.detail === 0));
 
 // ---- version (version.json is written by scripts/build.sh; absent when site/ is opened as is) --
 let version = null;
@@ -565,9 +576,8 @@ function render() {
     st.innerHTML = t(state.status, { name: state.name, size: state.size });
   }
 
-  const method = document.querySelector('input[name="method"]:checked').value;
-  $("panel-wifi").hidden = method !== "wifi";
-  ["panel-file", "panel-usb", "setup"].forEach((id) => { $(id).hidden = method !== "usb"; });
+  $("panel-wifi").hidden = method() !== "wifi";
+  ["panel-file", "panel-usb", "setup"].forEach((id) => { $(id).hidden = method() !== "usb"; });
 
   // Say why "Open update page" is still disabled (issue #6): a bad address.
   const host = gplugHost();
