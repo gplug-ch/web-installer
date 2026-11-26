@@ -1,0 +1,5 @@
+# Built site (scripts/serve.sh, CI)
+_site/
+*.bin
+.DS_Store
+__pycache__/
