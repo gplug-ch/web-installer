@@ -5,7 +5,6 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf _site && cp -R site _site
-touch _site/.nojekyll
 python3 scripts/fetch_base.py _site
 
 # "-dirty" on the commit marks a local build with uncommitted changes to tracked files.
