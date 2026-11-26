@@ -10,21 +10,39 @@ leaves the user's computer.
 
 ## How the user installs
 
-1. **Choose the file.** The page checks it locally: ESP image magic, chip = ESP32-C3, size fits
-   app0. A `.bin.gz` is unpacked for the check. A full (factory) image is recognised and limited to USB.
-2. **Pick a method.**
+The steps fold like an accordion: only the step in focus is open, and the page opens the next one as
+the user goes on.
+
+1. **Pick a method.**
    - **Wi-Fi (recommended).** The gPlug stays on the meter. The user enters its address, the page
-     opens the gPlug's own Tasmota update page (`http://<gplug>/up`), and the user uploads the same
-     file there. Settings are kept.
-   - **USB (fallback).** For a gPlug that is not reachable over Wi-Fi. Chrome/Edge + Web Serial via
-     [ESP Web Tools](https://esphome.github.io/esp-web-tools/); the manifest is built in the browser.
+     opens the gPlug's own Tasmota update page (`http://<gplug>/up`), and the user picks the file
+     there, the only time they pick it. Settings are kept. The gPlug checks the file itself.
+   - **USB (fallback).** For a gPlug that is not reachable over Wi-Fi.
+2. **USB: choose the file.** The page checks it locally: ESP image magic, chip = ESP32-C3, size fits
+   app0. A `.bin.gz` is unpacked for the check. A full (factory) image is recognised and written at 0x0.
+3. **USB: install** with Chrome/Edge + Web Serial via
+   [ESP Web Tools](https://esphome.github.io/esp-web-tools/); the manifest is built in the browser.
+4. **USB: first setup**, if the gPlug is not on the user's Wi-Fi yet.
 
 ### Why Wi-Fi goes through the gPlug's own page
 
-The page cannot upload to the gPlug itself. Tasmota accepts uploads only when the `Referer` is the
-device itself (`HttpCheckPriviledgedAccess`, `SetOption128 0` by default). On top of that, an https page
-may not send requests to a plain-http device on the local network. Opening the device's `/up` page is
-a normal navigation and works in every browser, including when a web password is set.
+The page does not upload to the gPlug itself (issue #8, tested on a gPlug with Tasmota 15.3.0):
+
+- This page is https, the gPlug plain http. A normal `fetch()` to it is blocked as mixed content, and
+  the gPlug sends no CORS headers.
+- Chrome/Edge do reach it with Local Network Access (`fetch(url, { mode: "no-cors",
+  targetAddressSpace: "local" })`, after a permission prompt), but the reply is opaque. With the
+  safeboot layout the upload needs a restart into safeboot first (`/u4?u4=fct`, polled until it
+  answers `true`), and the page could neither see that answer nor whether the upload worked.
+- It would also fail when the user has set a web password (`no-cors` sends no credentials) or set
+  `SetOption128 0`: Tasmota's `HttpCheckPriviledgedAccess` then accepts requests only with a
+  `Referer` from the device itself. `SetOption128` is on by default (`DISABLE_REFERER_CHK` is not
+  set), and the gPlug firmware does not change that.
+- Firefox and Safari have no such opening at all.
+
+Opening the device's `/up` page is a normal navigation, works in every browser (also with a web
+password) and shows Tasmota's own result. So over Wi-Fi this page does not ask for the file; the
+user picks it only there.
 
 ### What USB writes
 
