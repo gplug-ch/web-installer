@@ -109,6 +109,7 @@
       <input type="text" id="addr" placeholder="192.168.1.42" autocomplete="off" spellcheck="false" inputmode="url" aria-label="Adresse" />
       <button class="btn" id="open-gplug" disabled data-i18n="openBtn">Update-Seite öffnen</button>
     </div>
+    <p class="note warn" id="open-hint" hidden></p>
     <p class="muted" data-i18n="sameNet">Dieser Computer muss im gleichen WLAN sein wie der gPlug.</p>
     <p data-i18n="wifiThen">Die Seite des gPlug öffnet sich in einem neuen Fenster. Dort:</p>
     <ol>
@@ -254,6 +255,8 @@ const I18N = {
     errSize: "<strong>{name}</strong> is too large for the gPlug.",
     errRead: "<strong>{name}</strong> could not be read.",
     wifiFullOnly: "This file can only be installed with a USB cable.",
+    wifiNeedFile: "Choose the firmware file in step 1 first.",
+    addrInvalid: "This is not a valid address. Enter it like <code>192.168.1.42</code> or <code>gPlugK.local</code>.",
     versionInfo: "Web installer v{version} ({commit}, {date}) · USB base: Tasmota {tasmota}",
   },
   fr: {
@@ -319,6 +322,8 @@ const I18N = {
     errSize: "<strong>{name}</strong> est trop volumineux pour le gPlug.",
     errRead: "<strong>{name}</strong> n'a pas pu être lu.",
     wifiFullOnly: "Ce fichier ne peut être installé qu'avec un câble USB.",
+    wifiNeedFile: "Choisissez d'abord le fichier du firmware à l'étape 1.",
+    addrInvalid: "Cette adresse n'est pas valable. Saisissez-la comme <code>192.168.1.42</code> ou <code>gPlugK.local</code>.",
     versionInfo: "Installateur web v{version} ({commit}, {date}) · Base USB : Tasmota {tasmota}",
   },
   it: {
@@ -384,6 +389,8 @@ const I18N = {
     errSize: "<strong>{name}</strong> è troppo grande per il gPlug.",
     errRead: "<strong>{name}</strong> non può essere letto.",
     wifiFullOnly: "Questo file può essere installato solo con un cavo USB.",
+    wifiNeedFile: "Scelga prima il file del firmware al passo 1.",
+    addrInvalid: "Questo indirizzo non è valido. Lo inserisca come <code>192.168.1.42</code> o <code>gPlugK.local</code>.",
     versionInfo: "Installer web v{version} ({commit}, {date}) · Base USB: Tasmota {tasmota}",
   },
   de: {
@@ -394,6 +401,8 @@ const I18N = {
     errSize: "<strong>{name}</strong> ist zu gross für den gPlug.",
     errRead: "<strong>{name}</strong> konnte nicht gelesen werden.",
     wifiFullOnly: "Diese Datei kann nur mit USB-Kabel installiert werden.",
+    wifiNeedFile: "Wählen Sie zuerst in Schritt 1 die Firmware-Datei.",
+    addrInvalid: "Das ist keine gültige Adresse. Geben Sie sie so ein: <code>192.168.1.42</code> oder <code>gPlugK.local</code>.",
     versionInfo: "Web-Installer v{version} ({commit}, {date}) · USB-Basis: Tasmota {tasmota}",
   },
 };
@@ -524,7 +533,15 @@ function render() {
   $("panel-wifi").hidden = method !== "wifi";
   $("panel-usb").hidden = method !== "usb";
 
-  $("open-gplug").disabled = !state.image || state.kind !== "app" || !/^[\w.-]+(:\d+)?$|^\[[\da-f:]+\]$/i.test(gplugHost());
+  // Say why "Open update page" is still disabled (issue #6): no file yet, a USB-only file, or a bad address.
+  const host = gplugHost();
+  const hint = !state.image ? "wifiNeedFile"
+    : state.kind !== "app" ? "wifiFullOnly"
+    : !/^[\w.-]+(:\d+)?$|^\[[\da-f:]+\]$/i.test(host) ? (host ? "addrInvalid" : null)
+    : null;
+  $("open-gplug").disabled = !!hint || !host;
+  $("open-hint").hidden = !hint;
+  $("open-hint").innerHTML = hint ? t(hint) : "";
   $("installer").hidden = !state.image;
   $("usb-wait").hidden = !!state.image;
   $("no-serial").hidden = "serial" in navigator;
