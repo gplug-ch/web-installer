@@ -43,7 +43,7 @@ which also checks that the partition layout matches the gPlug's (app0 at `0xE000
 
 ## Files
 
-- `site/index.html` – the page (German/English).
+- `site/index.html` – the page (German, English, French, Italian; `?lang=de|en|fr|it` picks one, otherwise the browser language).
 - `VERSION.txt` – installer version shown on the page.
 - `scripts/build.sh` – builds `_site/`: page, `base/` and `version.json` (CI and local).
 - `scripts/fetch_base.py` – builds `base/` (bootloader, partitions, safeboot).

@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>gPlug Firmware installieren</title>
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <meta name="description" content="Die vom gPlug-Team erhaltene Firmware auf den gPlug installieren – über WLAN oder USB, direkt im Browser." />
 <style>
   :root { color-scheme: light dark; --bg:#fff; --fg:#15181d; --muted:#5b6470; --line:#e3e6ea; --card:#f7f8fa;
@@ -65,9 +68,11 @@
       <h1 data-i18n="title">gPlug Firmware installieren</h1>
       <p class="sub" data-i18n="subtitle">Installieren Sie die Firmware, die Sie vom gPlug-Team erhalten haben – direkt im Browser, ohne zusätzliche Software.</p>
     </div>
-    <div class="lang" role="group" aria-label="Sprache / Language">
+    <div class="lang" role="group" aria-label="Sprache / Language / Langue / Lingua">
       <button type="button" data-lang="de" aria-pressed="true">DE</button>
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      <button type="button" data-lang="it" aria-pressed="false">IT</button>
     </div>
   </header>
 
@@ -251,6 +256,136 @@ const I18N = {
     wifiFullOnly: "This file can only be installed with a USB cable.",
     versionInfo: "Web installer v{version} ({commit}, {date}) · USB base: Tasmota {tasmota}",
   },
+  fr: {
+    title: "Installer le firmware gPlug",
+    subtitle: "Installez le firmware que l'équipe gPlug vous a envoyé – directement dans le navigateur, sans logiciel supplémentaire.",
+    step1: "Choisir le fichier du firmware",
+    step1Text: "Enregistrez le fichier joint à l'e-mail de l'équipe gPlug sur cet ordinateur (p. ex. dans « Téléchargements ») et choisissez-le ici.",
+    dropTitle: "Choisir le fichier",
+    dropHint: "ou le glisser ici",
+    step2: "Comment voulez-vous installer ?",
+    wifiTitle: "Par Wi-Fi (recommandé)",
+    wifiDesc: "Le gPlug reste branché sur le compteur électrique. Il doit être connecté à votre Wi-Fi.",
+    usbTitle: "Avec un câble USB",
+    usbDesc: "Si le gPlug n'est pas joignable par Wi-Fi. Nécessite Chrome ou Edge sur un ordinateur.",
+    wifiStep: "Installer par Wi-Fi",
+    addrText: "Saisissez l'adresse du gPlug. Vous la trouvez dans la liste des appareils de votre routeur (le nom commence par <strong>gPlug</strong>, p. ex. <code>192.168.1.42</code>).",
+    openBtn: "Ouvrir la page de mise à jour",
+    sameNet: "Cet ordinateur doit être sur le même Wi-Fi que le gPlug.",
+    wifiThen: "La page du gPlug s'ouvre dans une nouvelle fenêtre. Là :",
+    wifi1: "Sous « Updatedatei hochladen » / « Use file upload », cliquez sur « Choisir un fichier ».",
+    wifi2: "Choisissez le même fichier que ci-dessus :",
+    wifi3: "Cliquez sur « Starten » / « Start upgrade ».",
+    wifi4: "Attendez que « Upload erfolgreich » / « Upload Successful » s'affiche et que le gPlug redémarre (1 à 2 minutes). Ne débranchez pas le gPlug pendant ce temps.",
+    wifiNote: "Vos réglages (Wi-Fi, compteur, clé) sont conservés.",
+    wifiTroubleTitle: "La page du gPlug ne s'ouvre pas ?",
+    wifiTrouble1: "Vérifiez l'adresse et que cet ordinateur est sur le même Wi-Fi.",
+    wifiTrouble2: "Si le navigateur demande un mot de passe, c'est le mot de passe web que vous avez défini sur le gPlug (utilisateur <code>admin</code>).",
+    wifiTrouble3: "Si le gPlug n'est pas joignable par Wi-Fi, choisissez « Avec un câble USB » ci-dessus.",
+    usbStep: "Installer avec un câble USB",
+    noSerialTitle: "Ce navigateur ne peut pas installer par USB.",
+    noSerialText: "Ouvrez cette page avec Google Chrome ou Microsoft Edge sur un ordinateur (Windows, Mac ou Linux). Les smartphones, tablettes, Safari et Firefox ne sont pas pris en charge.",
+    usb1: "Débranchez le gPlug du compteur électrique et reliez-le à cet ordinateur avec un câble USB.",
+    usb2: "Cliquez sur « Installer le firmware », choisissez le gPlug dans la fenêtre (en général « USB JTAG/serial debug unit »), puis « Connexion ».",
+    usb3: "Cliquez sur « Install » et attendez la fin de l'installation (environ 2 minutes).",
+    usb4: "Passez à l'étape 4 si le gPlug n'est pas encore sur votre Wi-Fi. Sinon, rebranchez le gPlug sur le compteur électrique.",
+    eraseWarn: "Ne cochez « Erase device » (effacer l'appareil) que si l'équipe gPlug vous le demande : tous les réglages sont effacés, y compris le Wi-Fi et la clé du compteur.",
+    installBtn: "Installer le firmware",
+    pickFileFirst: "Choisir d'abord un fichier (étape 1)",
+    unsupported: "Ce navigateur ne peut pas communiquer avec des appareils USB. Utilisez Chrome ou Edge sur un ordinateur.",
+    notAllowed: "L'accès USB nécessite une page sécurisée (https).",
+    usbTroubleTitle: "Le gPlug n'apparaît pas dans la liste ?",
+    usbTrouble1: "Certains câbles USB ne servent qu'à charger. Essayez un autre câble ou un autre port USB.",
+    usbTrouble2: "Fermez les autres fenêtres ou programmes qui pourraient utiliser le gPlug.",
+    usbTrouble3: "Débranchez le gPlug, rebranchez-le et rechargez cette page.",
+    step4: "Mettre le gPlug en service",
+    setupWhen: "Nécessaire seulement si le gPlug n'est pas encore connecté à votre Wi-Fi – p. ex. un gPlug neuf ou après « Erase device ». Sinon, c'est terminé.",
+    setupNeedTitle: "Il vous faut :",
+    setupNeed1: "L'interface client de votre compteur électrique a été activée par votre gestionnaire de réseau.",
+    setupNeed2: "Pour des données chiffrées : la clé figurant dans les documents de votre gestionnaire de réseau.",
+    setupNeed3: "Une réception Wi-Fi dans la bande 2,4 GHz à l'emplacement du compteur.",
+    setup1: "Alimentez le gPlug par USB pendant la configuration (bloc d'alimentation ou ordinateur). L'interface du compteur ne fournit souvent pas assez de courant pour cela.",
+    setup2: "Connectez votre smartphone ou ordinateur portable au Wi-Fi ouvert du gPlug. Il porte le nom de votre modèle, p. ex. <strong>gPlugK</strong>.",
+    setup3: "La page du gPlug s'ouvre. Sinon, saisissez <code>http://192.168.4.1</code> dans le navigateur.",
+    setup4: "Choisissez votre Wi-Fi, saisissez son mot de passe et cliquez sur « Speichern » / « Save ». Le gPlug se connecte à votre Wi-Fi et reçoit une adresse de votre routeur.",
+    setup5: "Débranchez le câble USB et insérez soigneusement le gPlug dans l'interface client du compteur électrique.",
+    setupAfter: "Ensuite, vous accédez au gPlug dans le navigateur par son adresse (liste des appareils du routeur) ou par son nom, p. ex. <code>http://gPlugK.local</code>. Tous les autres réglages se font là. Recommandé : définir un mot de passe web dans les réglages (utilisateur <code>admin</code>).",
+    privacy: "Le fichier du firmware ne quitte jamais votre ordinateur : il va directement à votre gPlug.",
+    help: "Des questions ? Contactez l'équipe gPlug via <a href=\"https://gplug.ch/\">gplug.ch</a>.",
+    fileOk: "Prêt : <strong>{name}</strong> ({size} Mo)",
+    fileFull: "Il s'agit d'une image complète. Elle ne peut être installée qu'avec un câble USB.",
+    errNotFw: "<strong>{name}</strong> n'est pas un fichier de firmware. Choisissez le fichier .bin de l'équipe gPlug.",
+    errChip: "<strong>{name}</strong> n'est pas prévu pour le gPlug (mauvaise puce).",
+    errSize: "<strong>{name}</strong> est trop volumineux pour le gPlug.",
+    errRead: "<strong>{name}</strong> n'a pas pu être lu.",
+    wifiFullOnly: "Ce fichier ne peut être installé qu'avec un câble USB.",
+    versionInfo: "Installateur web v{version} ({commit}, {date}) · Base USB : Tasmota {tasmota}",
+  },
+  it: {
+    title: "Installare il firmware gPlug",
+    subtitle: "Installi il firmware che il team gPlug le ha inviato – direttamente nel browser, senza software aggiuntivo.",
+    step1: "Scegliere il file del firmware",
+    step1Text: "Salvi il file allegato all'e-mail del team gPlug su questo computer (p. es. in «Download») e lo scelga qui.",
+    dropTitle: "Scegliere il file",
+    dropHint: "o trascinarlo qui",
+    step2: "Come desidera installare?",
+    wifiTitle: "Tramite Wi-Fi (consigliato)",
+    wifiDesc: "Il gPlug resta collegato al contatore elettrico. Deve essere connesso al suo Wi-Fi.",
+    usbTitle: "Con un cavo USB",
+    usbDesc: "Se il gPlug non è raggiungibile tramite Wi-Fi. Richiede Chrome o Edge su un computer.",
+    wifiStep: "Installare tramite Wi-Fi",
+    addrText: "Inserisca l'indirizzo del gPlug. Lo trova nell'elenco dei dispositivi del suo router (il nome inizia con <strong>gPlug</strong>, p. es. <code>192.168.1.42</code>).",
+    openBtn: "Aprire la pagina di aggiornamento",
+    sameNet: "Questo computer deve essere sulla stessa rete Wi-Fi del gPlug.",
+    wifiThen: "La pagina del gPlug si apre in una nuova finestra. Lì:",
+    wifi1: "Sotto «Updatedatei hochladen» / «Use file upload», cliccare su «Scegli file».",
+    wifi2: "Scegliere lo stesso file indicato sopra:",
+    wifi3: "Cliccare su «Starten» / «Start upgrade».",
+    wifi4: "Attendere che compaia «Upload erfolgreich» / «Upload Successful» e che il gPlug si riavvii (1–2 minuti). Nel frattempo non scollegare il gPlug.",
+    wifiNote: "Le sue impostazioni (Wi-Fi, contatore, chiave) vengono mantenute.",
+    wifiTroubleTitle: "La pagina del gPlug non si apre?",
+    wifiTrouble1: "Verifichi l'indirizzo e che questo computer sia sulla stessa rete Wi-Fi.",
+    wifiTrouble2: "Se il browser chiede una password, è la password web che ha impostato sul gPlug (utente <code>admin</code>).",
+    wifiTrouble3: "Se il gPlug non è raggiungibile tramite Wi-Fi, scelga «Con un cavo USB» qui sopra.",
+    usbStep: "Installare con un cavo USB",
+    noSerialTitle: "Questo browser non può installare tramite USB.",
+    noSerialText: "Apra questa pagina con Google Chrome o Microsoft Edge su un computer (Windows, Mac o Linux). Smartphone, tablet, Safari e Firefox non sono supportati.",
+    usb1: "Scolleghi il gPlug dal contatore elettrico e lo colleghi a questo computer con un cavo USB.",
+    usb2: "Clicchi su «Installare il firmware», scelga il gPlug nella finestra (di solito «USB JTAG/serial debug unit») e poi «Connetti».",
+    usb3: "Clicchi su «Install» e attenda la fine dell'installazione (circa 2 minuti).",
+    usb4: "Prosegua con il passo 4 se il gPlug non è ancora nel suo Wi-Fi. Altrimenti ricolleghi il gPlug al contatore elettrico.",
+    eraseWarn: "Selezioni «Erase device» (cancella dispositivo) solo se il team gPlug glielo indica: cancella tutte le impostazioni, compresi il Wi-Fi e la chiave del contatore.",
+    installBtn: "Installare il firmware",
+    pickFileFirst: "Prima scegliere un file (passo 1)",
+    unsupported: "Questo browser non può comunicare con dispositivi USB. Usi Chrome o Edge su un computer.",
+    notAllowed: "L'accesso USB richiede una pagina sicura (https).",
+    usbTroubleTitle: "Il gPlug non compare nell'elenco?",
+    usbTrouble1: "Alcuni cavi USB servono solo per caricare. Provi un altro cavo o un'altra porta USB.",
+    usbTrouble2: "Chiuda altre finestre o programmi che potrebbero usare il gPlug.",
+    usbTrouble3: "Scolleghi il gPlug, lo ricolleghi e ricarichi questa pagina.",
+    step4: "Mettere in funzione il gPlug",
+    setupWhen: "Necessario solo se il gPlug non è ancora connesso al suo Wi-Fi – p. es. un gPlug nuovo o dopo «Erase device». Altrimenti ha finito.",
+    setupNeedTitle: "Le serve:",
+    setupNeed1: "L'interfaccia cliente del suo contatore elettrico è stata attivata dal gestore di rete.",
+    setupNeed2: "Per dati cifrati: la chiave contenuta nei documenti del suo gestore di rete.",
+    setupNeed3: "Ricezione Wi-Fi nella banda 2,4 GHz presso il contatore.",
+    setup1: "Alimenti il gPlug tramite USB durante la configurazione (alimentatore o computer). Spesso l'interfaccia del contatore non fornisce abbastanza corrente.",
+    setup2: "Colleghi lo smartphone o il notebook al Wi-Fi aperto del gPlug. Ha il nome del suo modello, p. es. <strong>gPlugK</strong>.",
+    setup3: "Si apre la pagina del gPlug. Se no, inserisca <code>http://192.168.4.1</code> nel browser.",
+    setup4: "Scelga il suo Wi-Fi, inserisca la password e clicchi su «Speichern» / «Save». Il gPlug si connette al suo Wi-Fi e riceve un indirizzo dal router.",
+    setup5: "Scolleghi il cavo USB e inserisca con cura il gPlug nell'interfaccia cliente del contatore elettrico.",
+    setupAfter: "In seguito raggiunge il gPlug nel browser tramite il suo indirizzo (elenco dei dispositivi del router) o il nome, p. es. <code>http://gPlugK.local</code>. Lì si effettuano tutte le altre impostazioni. Consigliato: impostare una password web nelle impostazioni (utente <code>admin</code>).",
+    privacy: "Il file del firmware non lascia mai il suo computer: va direttamente al suo gPlug.",
+    help: "Domande? Contatti il team gPlug tramite <a href=\"https://gplug.ch/\">gplug.ch</a>.",
+    fileOk: "Pronto: <strong>{name}</strong> ({size} MB)",
+    fileFull: "Si tratta di un'immagine completa. Può essere installata solo con un cavo USB.",
+    errNotFw: "<strong>{name}</strong> non è un file di firmware. Scelga il file .bin del team gPlug.",
+    errChip: "<strong>{name}</strong> non è adatto al gPlug (chip errato).",
+    errSize: "<strong>{name}</strong> è troppo grande per il gPlug.",
+    errRead: "<strong>{name}</strong> non può essere letto.",
+    wifiFullOnly: "Questo file può essere installato solo con un cavo USB.",
+    versionInfo: "Installer web v{version} ({commit}, {date}) · Base USB: Tasmota {tasmota}",
+  },
   de: {
     fileOk: "Bereit: <strong>{name}</strong> ({size} MB)",
     fileFull: "Das ist ein vollständiges Abbild. Es kann nur mit USB-Kabel installiert werden.",
@@ -271,7 +406,8 @@ const FLASH_SIZE = 0x400000;
 
 // German texts live in the HTML; remember them so switching back restores them.
 document.querySelectorAll("[data-i18n]").forEach((el) => { I18N.de[el.dataset.i18n] ??= el.innerHTML; });
-let lang = localStorage.getItem("lang") || (navigator.language || "de").slice(0, 2);
+// ?lang=fr in the link wins (e.g. in the gPlug team's e-mail), then the last choice, then the browser.
+let lang = new URLSearchParams(location.search).get("lang") || localStorage.getItem("lang") || (navigator.language || "de").slice(0, 2);
 if (!I18N[lang]) lang = "en";
 const esc = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const t = (key, vars = {}) => (I18N[lang][key] ?? I18N.de[key]).replace(/\{(\w+)\}/g, (_, k) => esc(String(vars[k])));
