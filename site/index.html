@@ -134,7 +134,7 @@
       <li data-i18n="usb1">Ziehen Sie den gPlug vom Stromzähler ab und stecken Sie ihn mit einem USB-Kabel an diesen Computer.</li>
       <li data-i18n="usb2">Klicken Sie auf «Firmware installieren» und wählen Sie im Fenster den gPlug aus (meist «USB JTAG/serial debug unit»), dann «Verbinden».</li>
       <li data-i18n="usb3">Klicken Sie auf «Install» und warten Sie, bis die Installation fertig ist (ca. 2 Minuten).</li>
-      <li data-i18n="usb4">Stecken Sie den gPlug wieder am Stromzähler ein.</li>
+      <li data-i18n="usb4">Weiter mit Schritt 4, falls der gPlug noch nicht in Ihrem WLAN ist. Sonst den gPlug wieder am Stromzähler einstecken.</li>
     </ol>
     <div class="note warn">
       <span data-i18n="eraseWarn">Kreuzen Sie «Erase device» (Gerät löschen) nur an, wenn das gPlug-Team es Ihnen sagt: Es löscht alle Einstellungen, auch WLAN und Zählerschlüssel.</span>
@@ -153,6 +153,26 @@
         <li data-i18n="usbTrouble3">gPlug ausstecken, wieder einstecken und die Seite neu laden.</li>
       </ul>
     </details>
+  </section>
+
+  <!-- Step 4: first setup, after gplug.ch "Initiale Inbetriebnahme" -->
+  <section class="card" id="setup">
+    <h2><span class="num">4</span><span data-i18n="step4">gPlug in Betrieb nehmen</span></h2>
+    <p data-i18n="setupWhen">Nur nötig, wenn der gPlug noch nicht mit Ihrem WLAN verbunden ist – z.B. bei einem neuen gPlug oder nach «Erase device». Sonst sind Sie fertig.</p>
+    <p><strong data-i18n="setupNeedTitle">Das brauchen Sie:</strong></p>
+    <ul>
+      <li data-i18n="setupNeed1">Die Kundenschnittstelle Ihres Stromzählers ist vom Netzbetreiber freigeschaltet.</li>
+      <li data-i18n="setupNeed2">Bei verschlüsselten Daten: den Schlüssel aus den Unterlagen Ihres Netzbetreibers.</li>
+      <li data-i18n="setupNeed3">WLAN-Empfang beim Stromzähler im 2,4-GHz-Band.</li>
+    </ul>
+    <ol>
+      <li data-i18n="setup1">Versorgen Sie den gPlug für die Einrichtung über USB mit Strom (Netzteil oder Computer). Die Schnittstelle am Zähler liefert dafür oft zu wenig Strom.</li>
+      <li data-i18n="setup2">Verbinden Sie Smartphone oder Notebook mit dem offenen WLAN des gPlug. Es heisst wie Ihr Modell, z.B. <strong>gPlugK</strong>.</li>
+      <li data-i18n="setup3">Die Seite des gPlug öffnet sich. Falls nicht: im Browser <code>http://192.168.4.1</code> eingeben.</li>
+      <li data-i18n="setup4">Wählen Sie Ihr Heim-WLAN, geben Sie das Passwort ein und klicken Sie auf «Speichern». Der gPlug verbindet sich mit Ihrem WLAN und erhält vom Router eine Adresse.</li>
+      <li data-i18n="setup5">Ziehen Sie das USB-Kabel ab und stecken Sie den gPlug sorgfältig in die Kundenschnittstelle des Stromzählers.</li>
+    </ol>
+    <p data-i18n="setupAfter">Danach erreichen Sie den gPlug im Browser über seine Adresse aus der Geräteliste des Routers oder über den Namen, z.B. <code>http://gPlugK.local</code>. Dort nehmen Sie alle weiteren Einstellungen vor. Empfohlen: unter den Einstellungen ein Web-Passwort setzen (Benutzer <code>admin</code>).</p>
   </section>
 
   <footer class="muted">
@@ -197,7 +217,7 @@ const I18N = {
     usb1: "Unplug the gPlug from the electricity meter and connect it to this computer with a USB cable.",
     usb2: "Click “Install firmware”, pick the gPlug in the window (usually “USB JTAG/serial debug unit”), then “Connect”.",
     usb3: "Click “Install” and wait until it is finished (about 2 minutes).",
-    usb4: "Plug the gPlug back into the electricity meter.",
+    usb4: "Continue with step 4 if the gPlug is not on your Wi-Fi yet. Otherwise plug the gPlug back into the electricity meter.",
     eraseWarn: "Only tick “Erase device” if the gPlug team tells you to: it deletes all settings, including Wi-Fi and the meter key.",
     installBtn: "Install firmware",
     pickFileFirst: "Choose a file first (step 1)",
@@ -207,6 +227,18 @@ const I18N = {
     usbTrouble1: "Some USB cables can only charge. Try another cable or another USB port.",
     usbTrouble2: "Close other windows or programs that might use the gPlug.",
     usbTrouble3: "Unplug the gPlug, plug it in again and reload this page.",
+    step4: "Set up the gPlug",
+    setupWhen: "Only needed if the gPlug is not connected to your Wi-Fi yet – e.g. a new gPlug or after “Erase device”. Otherwise you are done.",
+    setupNeedTitle: "You need:",
+    setupNeed1: "The customer interface of your electricity meter has been enabled by your grid operator.",
+    setupNeed2: "For encrypted data: the key from your grid operator's documents.",
+    setupNeed3: "Wi-Fi reception at the electricity meter in the 2.4 GHz band.",
+    setup1: "Power the gPlug over USB for the setup (power adapter or computer). The meter's interface often does not supply enough power for it.",
+    setup2: "Connect your phone or notebook to the gPlug's open Wi-Fi. It is named after your model, e.g. <strong>gPlugK</strong>.",
+    setup3: "The gPlug's page opens. If not, enter <code>http://192.168.4.1</code> in the browser.",
+    setup4: "Choose your home Wi-Fi, enter its password and click “Save”. The gPlug joins your Wi-Fi and gets an address from your router.",
+    setup5: "Unplug the USB cable and carefully plug the gPlug into the customer interface of the electricity meter.",
+    setupAfter: "From then on you reach the gPlug in the browser at its address from the router's device list or by name, e.g. <code>http://gPlugK.local</code>. All further settings are made there. Recommended: set a web password in the settings (user <code>admin</code>).",
     privacy: "The firmware file never leaves your computer: it goes straight to your gPlug.",
     help: "Questions? Contact the gPlug team via <a href=\"https://gplug.ch/\">gplug.ch</a>.",
     // messages set from code
