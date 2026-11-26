@@ -72,6 +72,8 @@
                     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   .step:not(.collapsed) .step-head .sum { visibility:hidden; }
   .step.done .num { background:var(--accent); }
+  .field { display:flex; flex-direction:column; gap:4px; flex:1 1 180px; max-width:260px;
+           font-size:0.9rem; color:var(--muted); }
   .btn.secondary { background:none; color:var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
 </style>
 </head>
@@ -134,6 +136,7 @@
     </ol>
     <p class="note warn" data-i18n="wifiFileWarn">Wählen Sie nur die Datei, die Ihnen das gPlug-Team geschickt hat. Soll sie laut gPlug-Team per USB-Kabel installiert werden, wählen Sie oben «Über USB-Kabel».</p>
     <p class="muted" data-i18n="wifiNote">Ihre Einstellungen (WLAN, Zähler, Schlüssel) bleiben erhalten.</p>
+    <button class="btn secondary" id="wifi-next" data-i18n="wifiNext">Fertig? Weiter zu Schritt 3</button>
     <details>
       <summary data-i18n="wifiTroubleTitle">Die Seite des gPlug öffnet sich nicht?</summary>
       <ul>
@@ -194,7 +197,25 @@
       <li data-i18n="setup4">Wählen Sie Ihr Heim-WLAN, geben Sie das Passwort ein und klicken Sie auf «Speichern». Der gPlug verbindet sich mit Ihrem WLAN und erhält vom Router eine Adresse.</li>
       <li data-i18n="setup5">Ziehen Sie das USB-Kabel ab und stecken Sie den gPlug sorgfältig in die Kundenschnittstelle des Stromzählers.</li>
     </ol>
-    <p data-i18n="setupAfter">Danach erreichen Sie den gPlug im Browser über seine Adresse aus der Geräteliste des Routers oder über den Namen, z.B. <code>http://gPlugK.local</code>. Dort nehmen Sie alle weiteren Einstellungen vor. Empfohlen: unter den Einstellungen ein Web-Passwort setzen (Benutzer <code>admin</code>).</p>
+    <p data-i18n="setupAfter">Danach erreichen Sie den gPlug im Browser über seine Adresse aus der Geräteliste des Routers. Dort nehmen Sie alle weiteren Einstellungen vor. Empfohlen: unter den Einstellungen ein Web-Passwort setzen (Benutzer <code>admin</code>).</p>
+    <button class="btn secondary" id="setup-next" data-i18n="setupNext">Fertig? Weiter zu Schritt 5</button>
+  </section>
+
+  <!-- Last step (both paths): reach the gPlug by name over mDNS (issue #10) -->
+  <section class="card step" id="panel-name">
+    <h2><span class="num" id="name-num">3</span><span data-i18n="nameStep">Über den Namen erreichbar machen</span></h2>
+    <p data-i18n="nameText">Damit Sie den gPlug später über seinen Namen öffnen können, z.B. <code>http://gPlugM.local</code>, statt über die Zahlen-Adresse. Den Namen sehen Sie oben auf der Seite des gPlug und in der Geräteliste Ihres Routers.</p>
+    <div class="row">
+      <label class="field"><span data-i18n="nameLabel">Name des gPlug</span>
+        <input type="text" id="mdns-name" placeholder="gPlugM" autocomplete="off" spellcheck="false" /></label>
+      <label class="field"><span data-i18n="nameAddrLabel">Adresse (wie in Schritt 2)</span>
+        <input type="text" id="name-addr" placeholder="192.168.1.42" autocomplete="off" spellcheck="false" inputmode="url" /></label>
+    </div>
+    <div class="row">
+      <button class="btn" id="name-check" data-i18n="checkBtn">Prüfen</button>
+      <button class="btn secondary" id="name-enable" hidden data-i18n="enableBtn">Namen einschalten</button>
+    </div>
+    <p class="note" id="name-status" hidden></p>
   </section>
 
   <footer class="muted">
@@ -262,7 +283,7 @@ const I18N = {
     setup3: "The gPlug's page opens. If not, enter <code>http://192.168.4.1</code> in the browser.",
     setup4: "Choose your home Wi-Fi, enter its password and click “Save”. The gPlug joins your Wi-Fi and gets an address from your router.",
     setup5: "Unplug the USB cable and carefully plug the gPlug into the customer interface of the electricity meter.",
-    setupAfter: "From then on you reach the gPlug in the browser at its address from the router's device list or by name, e.g. <code>http://gPlugK.local</code>. All further settings are made there. Recommended: set a web password in the settings (user <code>admin</code>).",
+    setupAfter: "From then on you reach the gPlug in the browser at its address from the router's device list. All further settings are made there. Recommended: set a web password in the settings (user <code>admin</code>).",
     privacy: "The firmware file never leaves your computer: it goes straight to your gPlug.",
     help: "Questions? Contact the gPlug team via <a href=\"https://gplug.ch/\">gplug.ch</a>.",
     // messages set from code
@@ -273,6 +294,22 @@ const I18N = {
     errRead: "<strong>{name}</strong> could not be read.",
     addrInvalid: "This is not a valid address. Enter it like <code>192.168.1.42</code> or <code>gPlugK.local</code>.",
     versionInfo: "Web installer v{version} ({commit}, {date}) · USB base: Tasmota {tasmota}",
+    wifiNext: "Done? Continue with step 3",
+    setupNext: "Done? Continue with step 5",
+    nameStep: "Make the gPlug reachable by name",
+    nameText: "So you can later open the gPlug by its name, e.g. <code>http://gPlugM.local</code>, instead of its number address. You see the name at the top of the gPlug's page and in your router's device list.",
+    nameLabel: "Name of the gPlug",
+    nameAddrLabel: "Address (as in step 2)",
+    checkBtn: "Check",
+    enableBtn: "Turn on name",
+    nameChecking: "Checking … If the browser asks whether this page may access devices on your local network, allow it.",
+    nameOk: "The gPlug is reachable at <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>.",
+    nameOff: "The gPlug answers at <code>{addr}</code>, but not at <code>{name}.local</code>: name lookup (mDNS) is probably turned off on the gPlug. Click “Turn on name”.",
+    nameNoCheck: "This page cannot reach the gPlug at <code>{addr}</code>. Only Chrome and Edge can check it from here; also check the address. Open <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a> yourself. If it does not open, click “Turn on name”.",
+    nameNeedAddr: "The gPlug does not answer at <code>{name}.local</code>. Enter its address so this page can check further and turn the name on.",
+    nameBad: "Enter the name like <code>gPlugM</code>.",
+    nameEnabling: "A window with the gPlug has opened. It should show <code>{\"SetOption55\":\"ON\"}</code>; if the browser asks for a password, it is user <code>admin</code> and your web password. Otherwise open the gPlug's page, go to “Tools” → “Console” and enter <code>SetOption55 1</code>. This page checks again in a few seconds.",
+    nameStillOff: "The gPlug is not reachable by name yet. Check the name, wait a moment and check again. Some devices (e.g. older Android phones) cannot open <code>.local</code> names at all: there, use the address <code>{addr}</code>.",
   },
   fr: {
     title: "Installer le firmware gPlug",
@@ -329,7 +366,7 @@ const I18N = {
     setup3: "La page du gPlug s'ouvre. Sinon, saisissez <code>http://192.168.4.1</code> dans le navigateur.",
     setup4: "Choisissez votre Wi-Fi, saisissez son mot de passe et cliquez sur « Speichern » / « Save ». Le gPlug se connecte à votre Wi-Fi et reçoit une adresse de votre routeur.",
     setup5: "Débranchez le câble USB et insérez soigneusement le gPlug dans l'interface client du compteur électrique.",
-    setupAfter: "Ensuite, vous accédez au gPlug dans le navigateur par son adresse (liste des appareils du routeur) ou par son nom, p. ex. <code>http://gPlugK.local</code>. Tous les autres réglages se font là. Recommandé : définir un mot de passe web dans les réglages (utilisateur <code>admin</code>).",
+    setupAfter: "Ensuite, vous accédez au gPlug dans le navigateur par son adresse (liste des appareils du routeur). Tous les autres réglages se font là. Recommandé : définir un mot de passe web dans les réglages (utilisateur <code>admin</code>).",
     privacy: "Le fichier du firmware ne quitte jamais votre ordinateur : il va directement à votre gPlug.",
     help: "Des questions ? Contactez l'équipe gPlug via <a href=\"https://gplug.ch/\">gplug.ch</a>.",
     fileOk: "Prêt : <strong>{name}</strong> ({size} Mo)",
@@ -339,6 +376,22 @@ const I18N = {
     errRead: "<strong>{name}</strong> n'a pas pu être lu.",
     addrInvalid: "Cette adresse n'est pas valable. Saisissez-la comme <code>192.168.1.42</code> ou <code>gPlugK.local</code>.",
     versionInfo: "Installateur web v{version} ({commit}, {date}) · Base USB : Tasmota {tasmota}",
+    wifiNext: "Terminé ? Passer à l'étape 3",
+    setupNext: "Terminé ? Passer à l'étape 5",
+    nameStep: "Rendre le gPlug joignable par son nom",
+    nameText: "Pour ouvrir plus tard le gPlug par son nom, p. ex. <code>http://gPlugM.local</code>, au lieu de son adresse en chiffres. Le nom figure en haut de la page du gPlug et dans la liste des appareils de votre routeur.",
+    nameLabel: "Nom du gPlug",
+    nameAddrLabel: "Adresse (comme à l'étape 2)",
+    checkBtn: "Vérifier",
+    enableBtn: "Activer le nom",
+    nameChecking: "Vérification … Si le navigateur demande si cette page peut accéder aux appareils de votre réseau local, autorisez-le.",
+    nameOk: "Le gPlug est joignable à l'adresse <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>.",
+    nameOff: "Le gPlug répond à <code>{addr}</code>, mais pas à <code>{name}.local</code> : la résolution de nom (mDNS) est probablement désactivée sur le gPlug. Cliquez sur « Activer le nom ».",
+    nameNoCheck: "Cette page ne peut pas joindre le gPlug à <code>{addr}</code>. Seuls Chrome et Edge peuvent le vérifier d'ici ; vérifiez aussi l'adresse. Ouvrez vous-même <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>. Si rien ne s'ouvre, cliquez sur « Activer le nom ».",
+    nameNeedAddr: "Le gPlug ne répond pas à <code>{name}.local</code>. Saisissez son adresse pour que cette page puisse vérifier plus loin et activer le nom.",
+    nameBad: "Saisissez le nom comme <code>gPlugM</code>.",
+    nameEnabling: "Une fenêtre avec le gPlug s'est ouverte. Elle devrait afficher <code>{\"SetOption55\":\"ON\"}</code> ; si le navigateur demande un mot de passe, c'est l'utilisateur <code>admin</code> et votre mot de passe web. Sinon, ouvrez la page du gPlug, allez dans « Outils » / « Tools » → « Console » et saisissez <code>SetOption55 1</code>. Cette page vérifie à nouveau dans quelques secondes.",
+    nameStillOff: "Le gPlug n'est pas encore joignable par son nom. Contrôlez le nom, attendez un instant et vérifiez à nouveau. Certains appareils (p. ex. d'anciens smartphones Android) ne savent pas ouvrir les noms <code>.local</code> : utilisez-y l'adresse <code>{addr}</code>.",
   },
   it: {
     title: "Installare il firmware gPlug",
@@ -395,7 +448,7 @@ const I18N = {
     setup3: "Si apre la pagina del gPlug. Se no, inserisca <code>http://192.168.4.1</code> nel browser.",
     setup4: "Scelga il suo Wi-Fi, inserisca la password e clicchi su «Speichern» / «Save». Il gPlug si connette al suo Wi-Fi e riceve un indirizzo dal router.",
     setup5: "Scolleghi il cavo USB e inserisca con cura il gPlug nell'interfaccia cliente del contatore elettrico.",
-    setupAfter: "In seguito raggiunge il gPlug nel browser tramite il suo indirizzo (elenco dei dispositivi del router) o il nome, p. es. <code>http://gPlugK.local</code>. Lì si effettuano tutte le altre impostazioni. Consigliato: impostare una password web nelle impostazioni (utente <code>admin</code>).",
+    setupAfter: "In seguito raggiunge il gPlug nel browser tramite il suo indirizzo (elenco dei dispositivi del router). Lì si effettuano tutte le altre impostazioni. Consigliato: impostare una password web nelle impostazioni (utente <code>admin</code>).",
     privacy: "Il file del firmware non lascia mai il suo computer: va direttamente al suo gPlug.",
     help: "Domande? Contatti il team gPlug tramite <a href=\"https://gplug.ch/\">gplug.ch</a>.",
     fileOk: "Pronto: <strong>{name}</strong> ({size} MB)",
@@ -405,6 +458,22 @@ const I18N = {
     errRead: "<strong>{name}</strong> non può essere letto.",
     addrInvalid: "Questo indirizzo non è valido. Lo inserisca come <code>192.168.1.42</code> o <code>gPlugK.local</code>.",
     versionInfo: "Installer web v{version} ({commit}, {date}) · Base USB: Tasmota {tasmota}",
+    wifiNext: "Fatto? Proseguire con il passo 3",
+    setupNext: "Fatto? Proseguire con il passo 5",
+    nameStep: "Rendere il gPlug raggiungibile tramite il nome",
+    nameText: "Così in seguito può aprire il gPlug tramite il suo nome, p. es. <code>http://gPlugM.local</code>, invece dell'indirizzo numerico. Il nome è indicato in alto sulla pagina del gPlug e nell'elenco dei dispositivi del router.",
+    nameLabel: "Nome del gPlug",
+    nameAddrLabel: "Indirizzo (come al passo 2)",
+    checkBtn: "Verificare",
+    enableBtn: "Attivare il nome",
+    nameChecking: "Verifica in corso … Se il browser chiede se questa pagina può accedere ai dispositivi della rete locale, lo consenta.",
+    nameOk: "Il gPlug è raggiungibile su <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>.",
+    nameOff: "Il gPlug risponde su <code>{addr}</code>, ma non su <code>{name}.local</code>: la risoluzione dei nomi (mDNS) è probabilmente disattivata sul gPlug. Clicchi su «Attivare il nome».",
+    nameNoCheck: "Questa pagina non raggiunge il gPlug su <code>{addr}</code>. Solo Chrome ed Edge possono verificarlo da qui; controlli anche l'indirizzo. Apra lei stesso <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>. Se non si apre, clicchi su «Attivare il nome».",
+    nameNeedAddr: "Il gPlug non risponde su <code>{name}.local</code>. Inserisca il suo indirizzo, così questa pagina può verificare oltre e attivare il nome.",
+    nameBad: "Inserisca il nome come <code>gPlugM</code>.",
+    nameEnabling: "Si è aperta una finestra con il gPlug. Dovrebbe mostrare <code>{\"SetOption55\":\"ON\"}</code>; se il browser chiede una password, è l'utente <code>admin</code> con la sua password web. Altrimenti apra la pagina del gPlug, vada in «Tools» → «Console» e inserisca <code>SetOption55 1</code>. Questa pagina verifica di nuovo tra qualche secondo.",
+    nameStillOff: "Il gPlug non è ancora raggiungibile tramite il nome. Controlli il nome, attenda un momento e verifichi di nuovo. Alcuni dispositivi (p. es. vecchi smartphone Android) non aprono i nomi <code>.local</code>: lì usi l'indirizzo <code>{addr}</code>.",
   },
   de: {
     fileOk: "Bereit: <strong>{name}</strong> ({size} MB)",
@@ -414,6 +483,14 @@ const I18N = {
     errRead: "<strong>{name}</strong> konnte nicht gelesen werden.",
     addrInvalid: "Das ist keine gültige Adresse. Geben Sie sie so ein: <code>192.168.1.42</code> oder <code>gPlugK.local</code>.",
     versionInfo: "Web-Installer v{version} ({commit}, {date}) · USB-Basis: Tasmota {tasmota}",
+    nameChecking: "Wird geprüft … Fragt der Browser, ob diese Seite auf Geräte in Ihrem lokalen Netzwerk zugreifen darf, erlauben Sie es.",
+    nameOk: "Der gPlug ist erreichbar unter <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>.",
+    nameOff: "Der gPlug antwortet unter <code>{addr}</code>, aber nicht unter <code>{name}.local</code>: Die Namensauflösung (mDNS) ist auf dem gPlug vermutlich ausgeschaltet. Klicken Sie auf «Namen einschalten».",
+    nameNoCheck: "Diese Seite erreicht den gPlug unter <code>{addr}</code> nicht. Nur Chrome und Edge können ihn von hier aus prüfen; prüfen Sie auch die Adresse. Öffnen Sie selbst <a href=\"http://{name}.local/\" target=\"_blank\" rel=\"noopener\">http://{name}.local</a>. Öffnet sich nichts, klicken Sie auf «Namen einschalten».",
+    nameNeedAddr: "Der gPlug antwortet nicht unter <code>{name}.local</code>. Geben Sie seine Adresse ein, damit diese Seite weiter prüfen und den Namen einschalten kann.",
+    nameBad: "Geben Sie den Namen so ein: <code>gPlugM</code>.",
+    nameEnabling: "Ein Fenster mit dem gPlug hat sich geöffnet. Dort sollte <code>{\"SetOption55\":\"ON\"}</code> stehen; fragt der Browser nach einem Passwort, ist es Benutzer <code>admin</code> und Ihr Web-Passwort. Sonst öffnen Sie die Seite des gPlug, gehen zu «Werkzeuge» → «Konsole» und geben <code>SetOption55 1</code> ein. Diese Seite prüft in einigen Sekunden erneut.",
+    nameStillOff: "Der gPlug ist noch nicht über den Namen erreichbar. Kontrollieren Sie den Namen, warten Sie einen Moment und prüfen Sie erneut. Manche Geräte (z.B. ältere Android-Smartphones) können <code>.local</code>-Namen gar nicht öffnen: Verwenden Sie dort die Adresse <code>{addr}</code>.",
   },
 };
 
@@ -439,6 +516,7 @@ document.querySelectorAll(".step").forEach((sec) => {
 });
 function goTo(id, focus = false) {
   openStep = id;
+  if (id === "panel-name" && !$("name-addr").value) $("name-addr").value = gplugHost() || localStorage.getItem("addr") || "";
   render();
   if (!id) return;
   if (focus) $(id).querySelector(".step-head").focus({ preventScroll: true });
@@ -548,6 +626,46 @@ $("open-gplug").addEventListener("click", () => {
   window.open(`http://${host}/up`, "_blank", "noopener");
 });
 
+// ---- last step: reach the gPlug by name (mDNS, issue #10) -------------------------------------
+// Tasmota's mDNS (SetOption55) is off by default. The page checks <name>.local and, if only the
+// address answers, offers to turn it on. Checking needs Chrome/Edge: from https, only Local Network
+// Access (targetAddressSpace) reaches the http gPlug, and its replies are opaque, so "answered at all"
+// is all the page learns. Turning on is a normal navigation to /cm, which works in every browser.
+let nameState = null;  // Checking | Ok | Off | NoCheck | NeedAddr | Bad | Enabling | StillOff
+const mdnsName = () => $("mdns-name").value.trim().replace(/^https?:\/\//i, "").replace(/[/?#].*$/, "").replace(/\.local\.?$/i, "");
+const nameAddr = () => $("name-addr").value.trim().replace(/^https?:\/\//i, "").replace(/[/?#].*$/, "");
+async function answers(host) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 20000);  // long enough for the browser's permission prompt
+  try {
+    await fetch(`http://${host}/`, { mode: "no-cors", cache: "no-store", targetAddressSpace: "local", signal: ctl.signal });
+    return true;
+  } catch { return false; } finally { clearTimeout(timer); }
+}
+async function checkName(afterEnable = false) {
+  const name = mdnsName();
+  if (!/^[a-z\d-]{1,63}$/i.test(name)) { nameState = "Bad"; render(); return; }
+  localStorage.setItem("mdns", name);
+  nameState = "Checking"; render();
+  if (await answers(`${name}.local`)) nameState = "Ok";
+  else if (afterEnable) nameState = "StillOff";
+  else if (!nameAddr()) nameState = "NeedAddr";
+  else nameState = (await answers(nameAddr())) ? "Off" : "NoCheck";
+  render();
+}
+$("mdns-name").value = localStorage.getItem("mdns") || "";
+$("name-check").addEventListener("click", () => checkName());
+["mdns-name", "name-addr"].forEach((id) => $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") checkName(); }));
+$("name-enable").addEventListener("click", () => {
+  if (!nameAddr()) { nameState = "NeedAddr"; render(); return; }
+  localStorage.setItem("addr", nameAddr());
+  window.open(`http://${nameAddr()}/cm?cmnd=SetOption55%201`, "_blank", "noopener");  // mDNS starts without a restart
+  nameState = "Enabling"; render();
+  setTimeout(() => checkName(true), 8000);
+});
+$("wifi-next").addEventListener("click", (e) => goTo("panel-name", e.detail === 0));
+$("setup-next").addEventListener("click", (e) => goTo("panel-name", e.detail === 0));
+
 // A click (also on the already selected method), Enter or Space moves on; arrow keys only select, so
 // keyboard users can look at both options without step 1 folding away.
 // Focus follows to the next step only for keyboard users; a pointer user keeps their place.
@@ -588,6 +706,16 @@ function render() {
   $("installer").hidden = !state.image;
   $("usb-wait").hidden = !!state.image;
   $("usb-next").hidden = !state.image;
+
+  $("name-num").textContent = method() === "wifi" ? "3" : "5";
+  const ns = $("name-status");
+  ns.hidden = !nameState;
+  if (nameState) {
+    ns.className = "note " + ({ Ok: "ok", Bad: "err", NeedAddr: "err", Checking: "" }[nameState] ?? "warn");
+    ns.innerHTML = t("name" + nameState, { name: mdnsName(), addr: nameAddr() });
+  }
+  $("name-check").disabled = nameState === "Checking";
+  $("name-enable").hidden = !["Off", "NoCheck", "StillOff"].includes(nameState);
 
   document.querySelectorAll(".step").forEach((sec) => {
     const open = sec.id === openStep;

@@ -23,6 +23,13 @@ the user goes on.
 3. **USB: install** with Chrome/Edge + Web Serial via
    [ESP Web Tools](https://esphome.github.io/esp-web-tools/); the manifest is built in the browser.
 4. **USB: first setup**, if the gPlug is not on the user's Wi-Fi yet.
+5. **Reach by name** (last step on both paths, Wi-Fi: step 3, USB: step 5). Tasmota's mDNS
+   (`SetOption55`) is off by default, so `http://<hostname>.local` often does not work. The page checks
+   it and, if only the address answers, offers "Turn on name": it opens
+   `http://<address>/cm?cmnd=SetOption55%201` in a new window (no restart needed) and checks again.
+   Checking uses `fetch(url, { mode: "no-cors", targetAddressSpace: "local" })`, so it only works in
+   Chrome/Edge (Local Network Access, after a permission prompt) and only learns whether the gPlug
+   answered at all. Other browsers get the link and the button without the check.
 
 ### Why Wi-Fi goes through the gPlug's own page
 
