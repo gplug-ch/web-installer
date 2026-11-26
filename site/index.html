@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>gPlug Firmware installieren</title>
+<meta name="description" content="Die vom gPlug-Team erhaltene Firmware auf den gPlug installieren – über WLAN oder USB, direkt im Browser." />
+<style>
+  :root { color-scheme: light dark; --bg:#fff; --fg:#15181d; --muted:#5b6470; --line:#e3e6ea; --card:#f7f8fa;
+          --accent:#0a7c3e; --accentbg:#e8f5ee; --warn:#8a5a00; --warnbg:#fff5e0; --err:#a1261b; --errbg:#fdecea; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14171b; --fg:#e8ebef; --muted:#9aa4b0; --line:#2a2f36; --card:#1b1f25;
+            --accent:#4cc27f; --accentbg:#16261d; --warn:#ffcf6b; --warnbg:#2a2416; --err:#ff8a80; --errbg:#2c1715; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 56px; background:var(--bg); color:var(--fg);
+         font:16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; }
+  header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 0 0 10px; display:flex; gap:10px; align-items:center; }
+  .num { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%;
+         background:var(--fg); color:var(--bg); font-size:0.9rem; flex:none; }
+  p, li { margin: 8px 0; }
+  .sub { color: var(--muted); margin-top: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 18px 0; }
+  .note { border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+  .warn { background: var(--warnbg); color: var(--warn); }
+  .err { background: var(--errbg); color: var(--err); }
+  .ok { background: var(--accentbg); color: var(--accent); }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  code { background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-size: 0.9em; }
+  a { color: inherit; }
+  ol, ul { padding-left: 22px; }
+  .lang { display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; flex:none; }
+  .lang button { border:0; background:none; color:var(--muted); padding:6px 10px; font:inherit; font-size:0.85rem; cursor:pointer; }
+  .lang button[aria-pressed="true"] { background:var(--fg); color:var(--bg); }
+  .drop { display:block; border:2px dashed var(--line); border-radius:10px; padding:22px; text-align:center; cursor:pointer; background:var(--bg); }
+  .drop.over { border-color:var(--accent); background:var(--accentbg); }
+  .drop input { display:none; }
+  .choices { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; }
+  .choice { position:relative; display:block; border:2px solid var(--line); border-radius:10px; padding:14px; cursor:pointer; background:var(--bg); }
+  .choice input { position:absolute; opacity:0; }
+  .choice strong { display:block; }
+  .choice span { color:var(--muted); font-size:0.88rem; }
+  .choice:has(input:checked) { border-color:var(--accent); background:var(--accentbg); }
+  .choice:has(input:focus-visible), .drop:focus-within { outline:2px solid var(--accent); outline-offset:2px; }
+  .choice:has(input:disabled) { opacity:0.5; cursor:not-allowed; }
+  .btn { display:inline-block; border:0; border-radius:10px; padding:14px 22px; font:inherit; font-weight:600;
+         background:var(--accent); color:#fff; cursor:pointer; text-decoration:none; }
+  .btn:disabled { background:var(--line); color:var(--muted); cursor:not-allowed; }
+  input[type="text"] { width:100%; max-width:360px; font:inherit; padding:10px 12px; border:1px solid var(--line);
+                       border-radius:8px; background:var(--bg); color:var(--fg); }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
+  [hidden] { display:none !important; }
+  details { margin-top: 10px; }
+  summary { cursor:pointer; }
+  footer { margin-top: 36px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1 data-i18n="title">gPlug Firmware installieren</h1>
+      <p class="sub" data-i18n="subtitle">Installieren Sie die Firmware, die Sie vom gPlug-Team erhalten haben – direkt im Browser, ohne zusätzliche Software.</p>
+    </div>
+    <div class="lang" role="group" aria-label="Sprache / Language">
+      <button type="button" data-lang="de" aria-pressed="true">DE</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <!-- Step 1: the file -->
+  <section class="card">
+    <h2><span class="num">1</span><span data-i18n="step1">Firmware-Datei auswählen</span></h2>
+    <p data-i18n="step1Text">Speichern Sie die Datei aus der E-Mail des gPlug-Teams auf diesem Computer (z.B. im Ordner «Downloads») und wählen Sie sie hier aus.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".bin,.gz,application/octet-stream" />
+      <strong data-i18n="dropTitle">Datei auswählen</strong><br />
+      <span class="muted" data-i18n="dropHint">oder hierher ziehen</span>
+    </label>
+    <div class="note" id="file-status" hidden></div>
+  </section>
+
+  <!-- Step 2: how -->
+  <section class="card">
+    <h2><span class="num">2</span><span data-i18n="step2">Wie soll installiert werden?</span></h2>
+    <div class="choices">
+      <label class="choice"><input type="radio" name="method" value="wifi" checked />
+        <strong data-i18n="wifiTitle">Über WLAN (empfohlen)</strong>
+        <span data-i18n="wifiDesc">Der gPlug bleibt am Stromzähler. Er muss mit Ihrem WLAN verbunden sein.</span></label>
+      <label class="choice"><input type="radio" name="method" value="usb" />
+        <strong data-i18n="usbTitle">Über USB-Kabel</strong>
+        <span data-i18n="usbDesc">Wenn der gPlug nicht im WLAN erreichbar ist. Benötigt Chrome oder Edge auf einem Computer.</span></label>
+    </div>
+  </section>
+
+  <!-- Step 3a: Wi-Fi -->
+  <section class="card" id="panel-wifi">
+    <h2><span class="num">3</span><span data-i18n="wifiStep">Über WLAN installieren</span></h2>
+    <p data-i18n="addrText">Geben Sie die Adresse des gPlug ein. Sie finden sie in der Geräteliste Ihres Routers (Name beginnt mit <strong>gPlug</strong>, z.B. <code>192.168.1.42</code>).</p>
+    <div class="row">
+      <input type="text" id="addr" placeholder="192.168.1.42" autocomplete="off" spellcheck="false" inputmode="url" aria-label="Adresse" />
+      <button class="btn" id="open-gplug" disabled data-i18n="openBtn">Update-Seite öffnen</button>
+    </div>
+    <p class="muted" data-i18n="sameNet">Dieser Computer muss im gleichen WLAN sein wie der gPlug.</p>
+    <p data-i18n="wifiThen">Die Seite des gPlug öffnet sich in einem neuen Fenster. Dort:</p>
+    <ol>
+      <li data-i18n="wifi1">Unter «Updatedatei hochladen» auf «Datei auswählen» klicken.</li>
+      <li><span data-i18n="wifi2">Die gleiche Datei wählen wie oben:</span> <strong class="fname">–</strong></li>
+      <li data-i18n="wifi3">Auf «Starten» klicken.</li>
+      <li data-i18n="wifi4">Warten, bis «Upload erfolgreich» erscheint und der gPlug neu startet (1–2 Minuten). Den gPlug in dieser Zeit nicht ausstecken.</li>
+    </ol>
+    <p class="muted" data-i18n="wifiNote">Ihre Einstellungen (WLAN, Zähler, Schlüssel) bleiben erhalten.</p>
+    <details>
+      <summary data-i18n="wifiTroubleTitle">Die Seite des gPlug öffnet sich nicht?</summary>
+      <ul>
+        <li data-i18n="wifiTrouble1">Prüfen Sie die Adresse und ob dieser Computer im gleichen WLAN ist.</li>
+        <li data-i18n="wifiTrouble2">Fragt der Browser nach einem Passwort, ist es das Web-Passwort, das Sie auf dem gPlug gesetzt haben (Benutzer <code>admin</code>).</li>
+        <li data-i18n="wifiTrouble3">Ist der gPlug nicht im WLAN erreichbar, wählen Sie oben «Über USB-Kabel».</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- Step 3b: USB -->
+  <section class="card" id="panel-usb" hidden>
+    <h2><span class="num">3</span><span data-i18n="usbStep">Über USB-Kabel installieren</span></h2>
+    <div class="note err" id="no-serial" hidden>
+      <strong data-i18n="noSerialTitle">Dieser Browser kann nicht über USB installieren.</strong>
+      <span data-i18n="noSerialText">Bitte öffnen Sie diese Seite mit Google Chrome oder Microsoft Edge auf einem Computer (Windows, Mac oder Linux). Smartphones, Tablets, Safari und Firefox werden nicht unterstützt.</span>
+    </div>
+    <ol>
+      <li data-i18n="usb1">Ziehen Sie den gPlug vom Stromzähler ab und stecken Sie ihn mit einem USB-Kabel an diesen Computer.</li>
+      <li data-i18n="usb2">Klicken Sie auf «Firmware installieren» und wählen Sie im Fenster den gPlug aus (meist «USB JTAG/serial debug unit»), dann «Verbinden».</li>
+      <li data-i18n="usb3">Klicken Sie auf «Install» und warten Sie, bis die Installation fertig ist (ca. 2 Minuten).</li>
+      <li data-i18n="usb4">Stecken Sie den gPlug wieder am Stromzähler ein.</li>
+    </ol>
+    <div class="note warn">
+      <span data-i18n="eraseWarn">Kreuzen Sie «Erase device» (Gerät löschen) nur an, wenn das gPlug-Team es Ihnen sagt: Es löscht alle Einstellungen, auch WLAN und Zählerschlüssel.</span>
+    </div>
+    <esp-web-install-button id="installer" hidden>
+      <button slot="activate" class="btn" data-i18n="installBtn">Firmware installieren</button>
+      <span slot="unsupported" data-i18n="unsupported">Dieser Browser unterstützt keine USB-Verbindung. Bitte Chrome oder Edge auf einem Computer verwenden.</span>
+      <span slot="not-allowed" data-i18n="notAllowed">Die USB-Verbindung ist nur auf einer sicheren Seite (https) möglich.</span>
+    </esp-web-install-button>
+    <button class="btn" id="usb-wait" disabled data-i18n="pickFileFirst">Zuerst Datei auswählen (Schritt 1)</button>
+    <details>
+      <summary data-i18n="usbTroubleTitle">Der gPlug erscheint nicht in der Liste?</summary>
+      <ul>
+        <li data-i18n="usbTrouble1">Manche USB-Kabel können nur laden. Versuchen Sie ein anderes Kabel oder einen anderen USB-Anschluss.</li>
+        <li data-i18n="usbTrouble2">Schliessen Sie andere Fenster oder Programme, die den gPlug verwenden könnten.</li>
+        <li data-i18n="usbTrouble3">gPlug ausstecken, wieder einstecken und die Seite neu laden.</li>
+      </ul>
+    </details>
+  </section>
+
+  <footer class="muted">
+    <p data-i18n="privacy">Die Firmware-Datei verlässt Ihren Computer nicht: Sie geht direkt an Ihren gPlug.</p>
+    <p data-i18n="help">Fragen? Wenden Sie sich an das gPlug-Team über <a href="https://gplug.ch/">gplug.ch</a>.</p>
+    <p><span id="version"></span><a href="https://github.com/gplug-ch/web-installer">Source</a></p>
+  </footer>
+</main>
+
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
+<script>
+const I18N = {
+  en: {
+    title: "Install gPlug firmware",
+    subtitle: "Install the firmware the gPlug team sent you – right in the browser, no extra software needed.",
+    step1: "Choose the firmware file",
+    step1Text: "Save the file from the gPlug team's e-mail on this computer (e.g. in “Downloads”) and choose it here.",
+    dropTitle: "Choose file",
+    dropHint: "or drag it here",
+    step2: "How do you want to install?",
+    wifiTitle: "Over Wi-Fi (recommended)",
+    wifiDesc: "The gPlug stays on the electricity meter. It must be connected to your Wi-Fi.",
+    usbTitle: "With a USB cable",
+    usbDesc: "If the gPlug cannot be reached over Wi-Fi. Needs Chrome or Edge on a computer.",
+    wifiStep: "Install over Wi-Fi",
+    addrText: "Enter the gPlug's address. You find it in your router's device list (the name starts with <strong>gPlug</strong>, e.g. <code>192.168.1.42</code>).",
+    openBtn: "Open update page",
+    sameNet: "This computer must be on the same Wi-Fi as the gPlug.",
+    wifiThen: "The gPlug's page opens in a new window. There:",
+    wifi1: "Under “Use file upload”, click “Choose file”.",
+    wifi2: "Choose the same file as above:",
+    wifi3: "Click “Start upgrade”.",
+    wifi4: "Wait until “Upload Successful” appears and the gPlug restarts (1–2 minutes). Do not unplug the gPlug meanwhile.",
+    wifiNote: "Your settings (Wi-Fi, meter, key) are kept.",
+    wifiTroubleTitle: "The gPlug's page does not open?",
+    wifiTrouble1: "Check the address and that this computer is on the same Wi-Fi.",
+    wifiTrouble2: "If the browser asks for a password, it is the web password you set on the gPlug (user <code>admin</code>).",
+    wifiTrouble3: "If the gPlug cannot be reached over Wi-Fi, choose “With a USB cable” above.",
+    usbStep: "Install with a USB cable",
+    noSerialTitle: "This browser cannot install over USB.",
+    noSerialText: "Please open this page in Google Chrome or Microsoft Edge on a computer (Windows, Mac or Linux). Phones, tablets, Safari and Firefox are not supported.",
+    usb1: "Unplug the gPlug from the electricity meter and connect it to this computer with a USB cable.",
+    usb2: "Click “Install firmware”, pick the gPlug in the window (usually “USB JTAG/serial debug unit”), then “Connect”.",
+    usb3: "Click “Install” and wait until it is finished (about 2 minutes).",
+    usb4: "Plug the gPlug back into the electricity meter.",
+    eraseWarn: "Only tick “Erase device” if the gPlug team tells you to: it deletes all settings, including Wi-Fi and the meter key.",
+    installBtn: "Install firmware",
+    pickFileFirst: "Choose a file first (step 1)",
+    unsupported: "This browser cannot talk to USB devices. Please use Chrome or Edge on a computer.",
+    notAllowed: "USB access needs a secure page (https).",
+    usbTroubleTitle: "The gPlug does not show up in the list?",
+    usbTrouble1: "Some USB cables can only charge. Try another cable or another USB port.",
+    usbTrouble2: "Close other windows or programs that might use the gPlug.",
+    usbTrouble3: "Unplug the gPlug, plug it in again and reload this page.",
+    privacy: "The firmware file never leaves your computer: it goes straight to your gPlug.",
+    help: "Questions? Contact the gPlug team via <a href=\"https://gplug.ch/\">gplug.ch</a>.",
+    // messages set from code
+    fileOk: "Ready: <strong>{name}</strong> ({size} MB)",
+    fileFull: "This is a full image. It can only be installed with a USB cable.",
+    errNotFw: "<strong>{name}</strong> is not a firmware file. Please choose the .bin file from the gPlug team.",
+    errChip: "<strong>{name}</strong> is not made for the gPlug (wrong chip).",
+    errSize: "<strong>{name}</strong> is too large for the gPlug.",
+    errRead: "<strong>{name}</strong> could not be read.",
+    wifiFullOnly: "This file can only be installed with a USB cable.",
+    versionInfo: "Web installer v{version} ({commit}, {date}) · USB base: Tasmota {tasmota}",
+  },
+  de: {
+    fileOk: "Bereit: <strong>{name}</strong> ({size} MB)",
+    fileFull: "Das ist ein vollständiges Abbild. Es kann nur mit USB-Kabel installiert werden.",
+    errNotFw: "<strong>{name}</strong> ist keine Firmware-Datei. Bitte wählen Sie die .bin-Datei vom gPlug-Team.",
+    errChip: "<strong>{name}</strong> ist nicht für den gPlug gemacht (falscher Chip).",
+    errSize: "<strong>{name}</strong> ist zu gross für den gPlug.",
+    errRead: "<strong>{name}</strong> konnte nicht gelesen werden.",
+    wifiFullOnly: "Diese Datei kann nur mit USB-Kabel installiert werden.",
+    versionInfo: "Web-Installer v{version} ({commit}, {date}) · USB-Basis: Tasmota {tasmota}",
+  },
+};
+
+// Flash layout of the gPlug (Tasmota, ESP32-C3, 4 MB); scripts/fetch_base.py checks the same values.
+const CHIP_ID_ESP32C3 = 5;
+const APP0_OFFSET = 0xE0000;
+const APP0_SIZE = 0x2D0000;
+const FLASH_SIZE = 0x400000;
+
+// German texts live in the HTML; remember them so switching back restores them.
+document.querySelectorAll("[data-i18n]").forEach((el) => { I18N.de[el.dataset.i18n] ??= el.innerHTML; });
+let lang = localStorage.getItem("lang") || (navigator.language || "de").slice(0, 2);
+if (!I18N[lang]) lang = "en";
+const esc = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+const t = (key, vars = {}) => (I18N[lang][key] ?? I18N.de[key]).replace(/\{(\w+)\}/g, (_, k) => esc(String(vars[k])));
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t("title");
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  render();
+}
+document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => {
+  lang = b.dataset.lang; localStorage.setItem("lang", lang); applyLang();
+}));
+
+// ---- state --------------------------------------------------------------------------------
+const state = { name: "", status: null, kind: null, image: null };  // kind: "app" | "full"
+const $ = (id) => document.getElementById(id);
+
+// ---- step 1: read and check the file locally ----------------------------------------------
+async function readImage(file) {
+  const head = new Uint8Array(await file.slice(0, 2).arrayBuffer());
+  const stream = head[0] === 0x1f && head[1] === 0x8b   // .bin.gz: Tasmota takes it over Wi-Fi, USB needs it unpacked
+    ? file.stream().pipeThrough(new DecompressionStream("gzip"))
+    : file.stream();
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function chooseFile(file) {
+  if (!file) return;
+  Object.assign(state, { name: file.name, status: null, kind: null, image: null });
+  try {
+    const img = await readImage(file);
+    if (img.length < 0x100 || img[0] !== 0xE9) state.status = "errNotFw";
+    else if ((img[12] | (img[13] << 8)) !== CHIP_ID_ESP32C3) state.status = "errChip";
+    else {
+      // A full (factory) image has the partition table at 0x8000; an app image does not.
+      state.kind = img.length > 0x8002 && img[0x8000] === 0xAA && img[0x8001] === 0x50 ? "full" : "app";
+      if (img.length > (state.kind === "full" ? FLASH_SIZE : APP0_SIZE)) { state.status = "errSize"; state.kind = null; }
+      else { state.status = "fileOk"; state.image = img; state.size = (file.size / 1048576).toFixed(1); }
+    }
+  } catch { state.status = "errRead"; }
+  if (state.kind === "full") document.querySelector('input[name="method"][value="usb"]').checked = true;
+  updateManifest();
+  render();
+}
+
+$("file").addEventListener("change", (e) => chooseFile(e.target.files[0]));
+const drop = $("drop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("over")));
+drop.addEventListener("drop", (e) => { e.preventDefault(); chooseFile(e.dataTransfer.files[0]); });
+
+// ---- step 3b: USB via ESP Web Tools, with a manifest built for the chosen file -------------
+let blobUrls = [];
+function updateManifest() {
+  blobUrls.forEach(URL.revokeObjectURL);
+  blobUrls = [];
+  const installer = $("installer");
+  if (!state.image) { installer.removeAttribute("manifest"); return; }
+  const imgUrl = URL.createObjectURL(new Blob([state.image]));
+  const base = (p) => new URL(`base/${p}`, location.href).href;
+  // App image: stock Tasmota bootloader, partition table and safeboot below it so a device with a
+  // damaged layout boots again; NVS (0x9000-0xE000, the settings) is not touched.
+  const parts = state.kind === "full"
+    ? [{ path: imgUrl, offset: 0 }]
+    : [{ path: base("bootloader.bin"), offset: 0x0 },
+       { path: base("partitions.bin"), offset: 0x8000 },
+       { path: base("safeboot.bin"), offset: 0xE000 },
+       { path: imgUrl, offset: APP0_OFFSET }];
+  const manifest = {
+    name: "gPlug", version: state.name, new_install_prompt_erase: true,
+    builds: [{ chipFamily: "ESP32-C3", improv: false, parts }],
+  };
+  const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: "application/json" }));
+  blobUrls = [imgUrl, manifestUrl];
+  installer.setAttribute("manifest", manifestUrl);
+}
+
+// ---- step 3a: Wi-Fi via the gPlug's own update page ----------------------------------------
+// Tasmota only accepts uploads posted from its own pages (Referer check), so the user uploads there.
+function gplugHost() {
+  return $("addr").value.trim().replace(/^https?:\/\//i, "").replace(/[/?#].*$/, "");
+}
+$("addr").value = localStorage.getItem("addr") || "";
+$("addr").addEventListener("input", render);
+$("addr").addEventListener("keydown", (e) => { if (e.key === "Enter" && !$("open-gplug").disabled) $("open-gplug").click(); });
+$("open-gplug").addEventListener("click", () => {
+  const host = gplugHost();
+  localStorage.setItem("addr", host);
+  window.open(`http://${host}/up`, "_blank", "noopener");
+});
+
+document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener("change", render));
+
+// ---- version (version.json is written by scripts/build.sh; absent when site/ is opened as is) --
+let version = null;
+fetch("version.json").then((r) => r.json()).then((v) => { version = v; render(); }).catch(() => {});
+
+// ---- render -------------------------------------------------------------------------------
+function render() {
+  const st = $("file-status");
+  st.hidden = !state.status;
+  if (state.status) {
+    st.className = "note " + (state.image ? "ok" : "err");
+    st.innerHTML = t(state.status, { name: state.name, size: state.size })
+      + (state.kind === "full" ? "<br>" + t("fileFull") : "");
+  }
+  document.querySelectorAll(".fname").forEach((el) => { el.textContent = state.image ? state.name : "–"; });
+
+  const wifiRadio = document.querySelector('input[name="method"][value="wifi"]');
+  wifiRadio.disabled = state.kind === "full";
+  const method = document.querySelector('input[name="method"]:checked').value;
+  $("panel-wifi").hidden = method !== "wifi";
+  $("panel-usb").hidden = method !== "usb";
+
+  $("open-gplug").disabled = !state.image || state.kind !== "app" || !/^[\w.-]+(:\d+)?$|^\[[\da-f:]+\]$/i.test(gplugHost());
+  $("installer").hidden = !state.image;
+  $("usb-wait").hidden = !!state.image;
+  $("no-serial").hidden = "serial" in navigator;
+
+  $("version").innerHTML = version
+    ? t("versionInfo", { version: version.version, commit: version.short, date: version.date, tasmota: version.tasmota_base })
+      .replace(esc(version.short), `<a href="https://github.com/gplug-ch/web-installer/tree/${esc(version.commit)}">${esc(version.short)}</a>`) + " · "
+    : "";
+}
+
+applyLang();
+</script>
+</body>
+</html>
