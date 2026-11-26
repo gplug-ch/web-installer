@@ -156,7 +156,7 @@
     </div>
     <ol>
       <li data-i18n="usb1">Ziehen Sie den gPlug vom Stromzähler ab und stecken Sie ihn mit einem USB-Kabel an diesen Computer.</li>
-      <li data-i18n="usb2">Klicken Sie auf «Firmware installieren» und wählen Sie im Fenster den gPlug aus (meist «USB JTAG/serial debug unit»), dann «Verbinden».</li>
+      <li data-i18n="usb2">Klicken Sie auf «Firmware installieren» und wählen Sie im Fenster den seriellen Port des gPlug aus (macOS: «USB JTAG/serial debug unit (cu.usbmodem…)», Windows: «USB Serial Device (COM…)»), dann «Verbinden». Im Zweifel den gPlug ausstecken: Der Eintrag, der verschwindet, ist der richtige.</li>
       <li data-i18n="usb3">Klicken Sie auf «Install» und warten Sie, bis die Installation fertig ist (ca. 2 Minuten).</li>
       <li data-i18n="usb4">Weiter mit Schritt 4, falls der gPlug noch nicht in Ihrem WLAN ist. Sonst den gPlug wieder am Stromzähler einstecken.</li>
     </ol>
@@ -168,7 +168,7 @@
       <span slot="unsupported" data-i18n="unsupported">Dieser Browser unterstützt keine USB-Verbindung. Bitte Chrome oder Edge auf einem Computer verwenden.</span>
       <span slot="not-allowed" data-i18n="notAllowed">Die USB-Verbindung ist nur auf einer sicheren Seite (https) möglich.</span>
     </esp-web-install-button>
-    <button class="btn" id="usb-wait" disabled data-i18n="pickFileFirst">Zuerst Datei auswählen (Schritt 2)</button>
+    <button class="btn" id="usb-wait" data-i18n="pickFileFirst">Zuerst Datei auswählen (Schritt 2)</button>
     <button class="btn secondary" id="usb-next" hidden data-i18n="usbNext">Fertig? Weiter zu Schritt 4</button>
     <details>
       <summary data-i18n="usbTroubleTitle">Der gPlug erscheint nicht in der Liste?</summary>
@@ -259,7 +259,7 @@ const I18N = {
     noSerialTitle: "This browser cannot install over USB.",
     noSerialText: "Please open this page in Google Chrome or Microsoft Edge on a computer (Windows, Mac or Linux). Phones, tablets, Safari and Firefox are not supported.",
     usb1: "Unplug the gPlug from the electricity meter and connect it to this computer with a USB cable.",
-    usb2: "Click “Install firmware”, pick the gPlug in the window (usually “USB JTAG/serial debug unit”), then “Connect”.",
+    usb2: "Click “Install firmware”, choose the gPlug’s serial port in the window (macOS: “USB JTAG/serial debug unit (cu.usbmodem…)”, Windows: “USB Serial Device (COM…)”), then “Connect”. If unsure, unplug the gPlug: the entry that disappears is the right one.",
     usb3: "Click “Install” and wait until it is finished (about 2 minutes).",
     usb4: "Continue with step 4 if the gPlug is not on your Wi-Fi yet. Otherwise plug the gPlug back into the electricity meter.",
     eraseWarn: "Only tick “Erase device” if the gPlug team tells you to: it deletes all settings, including Wi-Fi and the meter key.",
@@ -342,7 +342,7 @@ const I18N = {
     noSerialTitle: "Ce navigateur ne peut pas installer par USB.",
     noSerialText: "Ouvrez cette page avec Google Chrome ou Microsoft Edge sur un ordinateur (Windows, Mac ou Linux). Les smartphones, tablettes, Safari et Firefox ne sont pas pris en charge.",
     usb1: "Débranchez le gPlug du compteur électrique et reliez-le à cet ordinateur avec un câble USB.",
-    usb2: "Cliquez sur « Installer le firmware », choisissez le gPlug dans la fenêtre (en général « USB JTAG/serial debug unit »), puis « Connexion ».",
+    usb2: "Cliquez sur « Installer le firmware », choisissez le port série du gPlug dans la fenêtre (macOS : « USB JTAG/serial debug unit (cu.usbmodem…) », Windows : « USB Serial Device (COM…) »), puis « Connexion ». En cas de doute, débranchez le gPlug : l’entrée qui disparaît est la bonne.",
     usb3: "Cliquez sur « Install » et attendez la fin de l'installation (environ 2 minutes).",
     usb4: "Passez à l'étape 4 si le gPlug n'est pas encore sur votre Wi-Fi. Sinon, rebranchez le gPlug sur le compteur électrique.",
     eraseWarn: "Ne cochez « Erase device » (effacer l'appareil) que si l'équipe gPlug vous le demande : tous les réglages sont effacés, y compris le Wi-Fi et la clé du compteur.",
@@ -424,7 +424,7 @@ const I18N = {
     noSerialTitle: "Questo browser non può installare tramite USB.",
     noSerialText: "Apra questa pagina con Google Chrome o Microsoft Edge su un computer (Windows, Mac o Linux). Smartphone, tablet, Safari e Firefox non sono supportati.",
     usb1: "Scolleghi il gPlug dal contatore elettrico e lo colleghi a questo computer con un cavo USB.",
-    usb2: "Clicchi su «Installare il firmware», scelga il gPlug nella finestra (di solito «USB JTAG/serial debug unit») e poi «Connetti».",
+    usb2: "Clicchi su «Installare il firmware», scelga la porta seriale del gPlug nella finestra (macOS: «USB JTAG/serial debug unit (cu.usbmodem…)», Windows: «USB Serial Device (COM…)») e poi «Connetti». In caso di dubbio, scolleghi il gPlug: la voce che scompare è quella giusta.",
     usb3: "Clicchi su «Install» e attenda la fine dell'installazione (circa 2 minuti).",
     usb4: "Prosegua con il passo 4 se il gPlug non è ancora nel suo Wi-Fi. Altrimenti ricolleghi il gPlug al contatore elettrico.",
     eraseWarn: "Selezioni «Erase device» (cancella dispositivo) solo se il team gPlug glielo indica: cancella tutte le impostazioni, compresi il Wi-Fi e la chiave del contatore.",
@@ -664,6 +664,8 @@ $("name-enable").addEventListener("click", () => {
   setTimeout(() => checkName(true), 8000);
 });
 $("wifi-next").addEventListener("click", (e) => goTo("panel-name", e.detail === 0));
+// No file yet: back to step 2 and open the file picker right away.
+$("usb-wait").addEventListener("click", (e) => { goTo("panel-file", e.detail === 0); $("file").click(); });
 $("setup-next").addEventListener("click", (e) => goTo("panel-name", e.detail === 0));
 
 // A click (also on the already selected method), Enter or Space moves on; arrow keys only select, so
@@ -705,6 +707,7 @@ function render() {
   $("open-hint").innerHTML = hint ? t(hint) : "";
   $("installer").hidden = !state.image;
   $("usb-wait").hidden = !!state.image;
+  $("usb-wait").disabled = !("serial" in navigator);  // a file is of no use without Web Serial
   $("usb-next").hidden = !state.image;
 
   $("name-num").textContent = method() === "wifi" ? "3" : "5";
