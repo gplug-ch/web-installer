@@ -10,21 +10,31 @@ leaves the user's computer.
 
 ## How the user installs
 
-1. **Choose the file.** The page checks it locally: ESP image magic, chip = ESP32-C3, size fits
-   app0. A `.bin.gz` is unpacked for the check. A full (factory) image is recognised and limited to USB.
-2. **Pick a method.**
-   - **Wi-Fi (recommended).** The gPlug stays on the meter. The user enters its address, the page
-     opens the gPlug's own Tasmota update page (`http://<gplug>/up`), and the user uploads the same
-     file there. Settings are kept.
-   - **USB (fallback).** For a gPlug that is not reachable over Wi-Fi. Chrome/Edge + Web Serial via
-     [ESP Web Tools](https://esphome.github.io/esp-web-tools/); the manifest is built in the browser.
+1. **Pick a method.**
+2. **Wi-Fi (recommended).** The gPlug stays on the meter. The user enters its address, the page opens
+   the gPlug's own Tasmota update page (`http://<gplug>/up`), and the user picks the file there, the
+   only time they pick it. Settings are kept. The gPlug checks the file itself (magic byte, image).
+3. **USB (fallback).** For a gPlug that is not reachable over Wi-Fi. The user picks the file on this
+   page, which checks it locally: ESP image magic, chip = ESP32-C3, size fits app0. A `.bin.gz` is
+   unpacked for the check. A full (factory) image is recognised and written at 0x0. Then Chrome/Edge +
+   Web Serial via [ESP Web Tools](https://esphome.github.io/esp-web-tools/); the manifest is built in
+   the browser.
 
 ### Why Wi-Fi goes through the gPlug's own page
 
-The page cannot upload to the gPlug itself. Tasmota accepts uploads only when the `Referer` is the
-device itself (`HttpCheckPriviledgedAccess`, `SetOption128 0` by default). On top of that, an https page
-may not send requests to a plain-http device on the local network. Opening the device's `/up` page is
-a normal navigation and works in every browser, including when a web password is set.
+The page cannot upload to the gPlug itself (issue #8):
+
+- Tasmota's `HttpCheckPriviledgedAccess` guards `/up`, `/u2` (upload) and `/u4` (switch to safeboot).
+  It accepts a request only when the `Referer` starts with the device's own `http://<hostname or IP>`;
+  a missing `Referer` is rejected too. Only `SetOption128 1` lifts this, and it disables the
+  protection, so users are not asked to set it.
+- This page is https, the gPlug http: browsers send no `Referer` on that downgrade, and `fetch()` to
+  http is blocked as mixed content. A form posted from here would therefore be rejected.
+- With the safeboot layout the `/up` page's own script first restarts the gPlug into safeboot
+  (`/u4?u4=fct`), polls until it is back, then uploads. That needs same-origin requests.
+
+Opening the device's `/up` page is a normal navigation and works in every browser, including when a
+web password is set. So over Wi-Fi this page does not ask for the file; the user picks it only there.
 
 ### What USB writes
 
